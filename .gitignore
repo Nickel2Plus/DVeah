@@ -1,0 +1,21 @@
+# 個人の設定と受信履歴
+dveah.ini
+dterm.ini
+heard.csv
+
+# ダウンロードしたホスト一覧と、自分用のホスト一覧
+*_Hosts.txt
+*_Hosts.txt.bak
+
+# アプリのビルドで作られるもの
+build/
+dist/
+*.spec
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

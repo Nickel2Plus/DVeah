@@ -31,6 +31,7 @@ import string
 import subprocess
 import sys
 import threading
+import webbrowser
 import tkinter as tk
 from tkinter import messagebox, ttk
 
@@ -62,7 +63,8 @@ class App:
         cfg = dveah.load_config_with_migration(CONFIG)
         self.hosts = dveah.load_default_hosts()
 
-        root.title("DVeah")
+        root.title(f"DVeah {dveah.__version__}")
+        self.build_menu()
         root.minsize(520, 560)
         pad = {"padx": 6, "pady": 3}
 
@@ -287,6 +289,47 @@ class App:
             self.hosts_job = dveah.load_default_hosts() if ok else {}
 
         threading.Thread(target=job, daemon=True).start()
+
+    # ---- メニュー ----
+    def build_menu(self):
+        """自前のメニューを付ける。
+        macOS では、メニューを付けないと Tk の既定のメニュー (File の Run Widget Demo など) が出てしまう"""
+        root = self.root
+        menubar = tk.Menu(root)
+        if sys.platform == "darwin":
+            # アプリケーションメニュー (「DVeah」の下)。Services、Hide、Quit などは Tk が後ろに足す
+            app_menu = tk.Menu(menubar, name="apple")
+            menubar.add_cascade(menu=app_menu)
+            app_menu.add_command(label="About DVeah", command=self.show_about)
+            app_menu.add_separator()
+            root.createcommand("tkAboutDialog", self.show_about)
+            root.createcommand("::tk::mac::ShowHelp", self.open_help)
+
+        file_menu = tk.Menu(menubar, tearoff=False)
+        menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Open Data Folder", command=self.open_data_dir)
+        file_menu.add_command(label="Update Host Lists", command=self.update_hosts)
+
+        if sys.platform == "darwin":
+            window_menu = tk.Menu(menubar, name="window")     # 最小化などは macOS が入れる
+            menubar.add_cascade(label="Window", menu=window_menu)
+
+        help_menu = tk.Menu(menubar, name="help", tearoff=False)
+        menubar.add_cascade(label="Help", menu=help_menu)
+        help_menu.add_command(label="DVeah Help (GitHub)", command=self.open_help)
+        root.config(menu=menubar)
+
+    def show_about(self):
+        messagebox.showinfo(
+            "About DVeah",
+            f"DVeah {dveah.__version__}\n\n"
+            "Icom D-STAR ターミナルモード ⇔ リフレクター (DExtra / DCS) 中継ソフト\n\n"
+            "Copyright (C) 2026 JQ7EAH (Nickel2Plus)\n"
+            "License: GPL-3.0-or-later\n\n"
+            f"{dveah.REPO_URL}")
+
+    def open_help(self):
+        webbrowser.open(dveah.REPO_URL)
 
     def open_data_dir(self):
         """設定・履歴・ホスト一覧のあるフォルダを Finder で開く"""

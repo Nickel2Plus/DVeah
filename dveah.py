@@ -48,6 +48,11 @@ import threading
 import time
 import urllib.request
 
+# リリースするときは、ここだけを書き換える (ウィンドウのタイトル、--version、アプリの情報に反映される)
+__version__ = "1.0.0"
+# ヘルプメニューと「DVeah について」で開くページ
+REPO_URL = "https://github.com/Nickel2Plus/DVeah"
+
 DEXTRA_PORT = 30001
 DCS_PORT = 30051
 
@@ -758,7 +763,7 @@ def load_default_hosts(path=None):
 
 def fetch_hosts(url):
     """URL から一覧を取得し、(本文, 有効な行数) を返す。形式が違えば例外"""
-    req = urllib.request.Request(url, headers={"User-Agent": "DVeah"})
+    req = urllib.request.Request(url, headers={"User-Agent": f"DVeah/{__version__}"})
     with urllib.request.urlopen(req, timeout=15) as res:
         data = res.read(5_000_000)
     text = data.decode("utf-8", "replace")
@@ -802,6 +807,7 @@ def update_hosts(config_path=None):
 
 def main():
     p = argparse.ArgumentParser(description="DVeah - Icom ターミナルモード <-> リフレクター (DExtra / DCS) 中継")
+    p.add_argument("--version", action="version", version=f"DVeah {__version__}")
     p.add_argument("--list-ports", action="store_true", help="シリアルポートの一覧を表示")
     p.add_argument("--update-hosts", action="store_true", help="ホスト一覧をダウンロードして更新し、終了")
     p.add_argument("--call", help="自局コールサイン (例: JQ7EAH)")
